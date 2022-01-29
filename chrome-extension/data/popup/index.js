@@ -33,6 +33,8 @@ assignRangeControls('ratio');
 assignRangeControls('attack');
 assignRangeControls('release');
 assignRangeControls('boost');
+assignRangeControls('reVos_multiplier');
+assignRangeControls('reVos_offset');
 
 elements.enabled.onchange = () => {
   saveSettings();
@@ -44,7 +46,7 @@ elements.disableForCrossSiteElements.onchange = () => {
 }
 */
 
-var defaultCompressorSettings = { enabled: true, threshold: -61.2, knee: 29, ratio: 1.4, attack: .001, release: .6, boost: .3 };
+var defaultCompressorSettings = { enabled: true, threshold: -61.2, knee: 29, ratio: 1.4, attack: .001, release: .6, boost: .3, reVos_multiplier: 1, reVos_offset: 1 };
 
 var currentSite = 'default';
 var urlSegments = [];
@@ -59,11 +61,11 @@ var prefs = {
 
 // enabled, threshold, knee, ratio, attack, release, boost
 var presets = {
-  'Disabled': { enabled: false, threshold: 0, knee: 30, ratio: 1, attack: .003, release: .25, boost: 0 },
-  'None': { enabled: true, threshold: 0, knee: 30, ratio: 1, attack: .003, release: .25, boost: 0 },
-  'Low': { enabled: true, threshold: -12, knee: 30, ratio: 6, attack: .003, release: .25, boost: 0 },
-  'Medium': { enabled: true, threshold: -30, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0 },
-  'High': { enabled: true, threshold: -50, knee: 30, ratio: 20, attack: .003, release: .25, boost: 0 }
+  'Disabled': { enabled: false, threshold: 0, knee: 30, ratio: 1, attack: .003, release: .25, boost: 0, reVos_multiplier: 0, reVos_offset: 1 },
+  'None': { enabled: true, threshold: 0, knee: 30, ratio: 1, attack: .003, release: .25, boost: 0, reVos_multiplier: 1, reVos_offset: 1 },
+  'Low': { enabled: true, threshold: -12, knee: 30, ratio: 6, attack: .003, release: .25, boost: 0, reVos_multiplier: 1, reVos_offset: 1 },
+  'Medium': { enabled: true, threshold: -30, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0, reVos_multiplier: 1, reVos_offset: 1 },
+  'High': { enabled: true, threshold: -50, knee: 30, ratio: 20, attack: .003, release: .25, boost: 0, reVos_multiplier: 1, reVos_offset: 1 }
 };
 
 for (var p in presets) {
@@ -226,6 +228,9 @@ function getCurrentCompressorSettings() {
   var settings = {};
 
   for (var s in defaultCompressorSettings) {
+    
+    // console.log('\n' + 'dcs:' + s + ' - ' + settings[s] + '\n');
+
     if (s == 'enabled') {
       settings[s] = elements.enabled.checked;
     }
@@ -233,7 +238,6 @@ function getCurrentCompressorSettings() {
       settings[s] = elements.compressorControls[s].value;
     }
   }
-
   return settings;
 }
 

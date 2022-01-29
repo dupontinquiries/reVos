@@ -1,6 +1,11 @@
+html {
+  /* width: 400px; */
+}
+
 body {
-  font-family: "Helvetica Neue",Helvetica,sans-serif;
-  font-size: 13px;
+  /* margin-left: 100px; */
+  font-family: "Helvetica Neue", Helvetica,sans-serif;
+  font-size: 8px;
   margin: 20px;
   display: flex;
   flex-direction: column;
@@ -15,6 +20,8 @@ header {
 }
 
 #body {
+  /* overflow-x: scroll; */
+  /* padding: 0 50px; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,6 +37,7 @@ header {
   display: inline-block;
   width: 20px;
   height: 150px;
+  transform: scaleY(.8);
   padding: 0;
 }
 

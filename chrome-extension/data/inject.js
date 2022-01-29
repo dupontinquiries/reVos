@@ -8,9 +8,9 @@
 
 // reVos hooks
 
-var multiplier = 1.05;
+// var multiplier = 1.05;
 var base = 1;
-var offset = 0;
+// var offset = 0;
 var steps = 4;
 
 var vol_arr = [];
@@ -48,13 +48,21 @@ function runAnalysis(target) {
   var video = document.getElementsByTagName('video')[0];
   
   setInterval(function() {
+
+    let multiplier = settings.reVos_multiplier;
+    let offset = settings.reVos_offset - 1;
+
+    // console.log(multiplier);
+    // console.log(offset);
     
     if (video.paused) {
       // console.log('paused');
+      video.playbackRate = 1 + offset;
       return;
     }
-
+    
     if (!settings.enabled) {
+      video.playbackRate = 1;
       // console.log('disabled');
       return;
     }
@@ -108,7 +116,10 @@ function runAnalysis(target) {
       if( video.playbackRate != pbr + offset) {
         video.playbackRate = pbr + offset;
       }
-      console.log('pbr: ' + video.playbackRate);
+      // console.log('pbr: ' + video.playbackRate);
+      // console.log(multiplier);
+      // console.log(offset);
+
       // video.currentTime = video.currentTime;
       // console.log('change: ' + pbr_change);
       // console.log('pbr: ' + (pbr + offset));
@@ -222,6 +233,9 @@ function adjustSource(target, settings) {
 
   function applySettings() {
     for (var s in settings) {
+
+      // console.log('\n' + 'dcs:' + s + ' - ' + settings[s] + '\n');
+
       var value = settings[s];
 
       if (s == 'enabled') {
@@ -236,7 +250,7 @@ function adjustSource(target, settings) {
           target.boost.gain.value = value * 4 + 1;
         }
       }
-      else {
+      else /*if (s == 'knee' || s == 'attack' || s == 'release')*/ {
         try {
           if (s == 'knee' || s == 'attack' || s == 'release') {
             if (value <= 0) {
@@ -247,6 +261,10 @@ function adjustSource(target, settings) {
           if (s == 'threshold') {
             target.compressor[s].linearRampToValueAtTime(value, parameterChangeDuration);
           }
+          else if ( s == 'reVos_multiplier' || s == 'reVos_offset' ) {
+            // alert('set');
+            target.compressor[s] = value;
+          }
           else {
             target.compressor[s].exponentialRampToValueAtTime(value, parameterChangeDuration);
           }
@@ -256,6 +274,14 @@ function adjustSource(target, settings) {
           target.compressor[s].value = value;
         }
       }
+      // else {
+      //   if (s == 'reVos_multiplier') {
+      //     target.compressor[s].linearRampToValueAtTime(value, parameterChangeDuration);
+      //   }
+      //   if (s == 'reVos_offset') {
+      //     target.compressor[s].linearRampToValueAtTime(value, parameterChangeDuration);
+      //   }
+      // }
     }
   }
 

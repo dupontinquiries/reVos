@@ -63,15 +63,27 @@
             <input type="range" id="boost" min="0" max="1" value="0" step=".01">
           </div>
         </td>
+        <td>
+          <div class="range-wrapper">
+            <input type="range" id="reVos_multiplier" min=".5" max="2" value="1" step=".1">
+          </div>
+        </td>
+        <td>
+          <div class="range-wrapper">
+            <input type="range" id="reVos_offset" min="1" max="2.5" value="1" step=".07">
+          </div>
+        </td>
       </tr>
       <tr>
         <td><input type="checkbox" id="enabled"></td>
         <td><input type="number" id="thresholdNumber" min="-100" max="0" value="0" step=".1"></td>
         <td><input type="number" id="kneeNumber" min="0.1" max="40" value="30" step=".1"></td>
-        <td><input type="number" id="ratioNumber" min="1" max="20" value="12" step=".1"></td>
+        <td><input type="number" id="ratioNumber" min=".5" max="20" value="12" step=".1"></td>
         <td><input type="number" id="attackNumber" min="0.001" max="1" value=".003" step=".001"></td>
         <td><input type="number" id="releaseNumber" min="0.001" max="1" value=".25" step=".001"></td>
         <td><input type="number" id="boostNumber" min="0" max="1" value="0" step=".01"></td>
+        <td><input type="number" id="reVos_multiplierNumber" min=".5" max="2" value="1" step=".1"></td>
+        <td><input type="number" id="reVos_offsetNumber" min="1" max="2.5" value="1" step=".07"></td>
       </tr>
       <tr>
         <td>Enable</td>
@@ -81,6 +93,8 @@
         <td>Attack</td>
         <td>Release</td>
         <td>Boost</td>
+        <td>reVos_multiplier</td>
+        <td>reVos_offset</td>
       </tr>
     </table>
   </div>
