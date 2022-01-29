@@ -5,10 +5,127 @@
 // for legacy browsers
 // const AudioContext = window.AudioContext || window.webkitAudioContext;
 
-var multiplier = 1;
+
+// reVos hooks
+
+var multiplier = 1.05;
 var base = 1;
 var offset = 0;
-var steps = 5;
+var steps = 4;
+
+var vol_arr = [];
+var ordered_vol_arr = [];
+var counter = 0;
+const max_counter = 24;
+const scan_time = 32;
+var is_active = true;
+
+// function set_offset(f) {
+//   offset = f;
+// }
+
+// function set_multiplier(m) {
+//   multiplier = m;
+// }
+
+for (let i = 0; i < max_counter; ++i ) {
+  vol_arr[i] = 10;
+}
+
+var should_analyze = null;
+
+function create_reVos_analyzer(target, settings) {
+  target.analyser = target.context.createAnalyser();
+  target.analyser.minDecibels = -90; // -90
+  target.analyser.maxDecibels = -10;
+  target.analyser.fftSize = 1024;
+  target.analyser.smoothingTimeConstant = 0.0;
+}
+
+function runAnalysis(target) {
+  // should_analyze = target;
+  
+  var video = document.getElementsByTagName('video')[0];
+  
+  setInterval(function() {
+    
+    if (video.paused) {
+      // console.log('paused');
+      return;
+    }
+
+    if (!settings.enabled) {
+      // console.log('disabled');
+      return;
+    }
+
+    var bufferLength = target.analyser.frequencyBinCount;
+    var dataArray = new Uint8Array(bufferLength);
+    target.analyser.getByteFrequencyData(dataArray);
+    
+    // const run_average = Math.pow ( dataArray.reduce((a, b) => a + b) / bufferLength, .85 );
+    const run_average = dataArray.reduce((a, b) => a + b) / dataArray.length; //, 1.1 ) / 1.05;
+    const vol_average = vol_arr.reduce((a, b) => a + b) / vol_arr.length;
+
+    if (counter >= max_counter) {
+      counter = 0;
+    }
+    vol_arr[counter] = run_average;
+    ++counter;
+
+    // reorder signal
+    for ( let i = 0; i < max_counter - counter; ++i ) {
+      // shifting by counter
+      ordered_vol_arr[i] = vol_arr[i + counter];
+    }
+    for ( let i = 0; i < counter; ++i ) {
+      ordered_vol_arr[max_counter - counter + i] = vol_arr[i];
+    }
+
+    let change1 = 0;
+    let change2 = 0;
+    for ( let i = 0; i < max_counter / 2; ++i ) {
+      change1 += ordered_vol_arr[i];
+    }
+    for ( let i = max_counter / 2; i < max_counter; ++i ) {
+      change2 += ordered_vol_arr[i];
+    }
+    let change = (change2 - change1) / max_counter * 1;
+
+    // console.log('refit: ' + ordered_vol_arr); 
+    // console.log('change: ' + change); 
+    
+    var pbr_change = base * Math.max( 0 - (.05 * change) , 0 );
+
+    var pbr = base * Math.max( 
+                multiplier * ( 1.3 + (  (-.08 * pbr_change) + (-.1 * run_average)  ) )
+              , 1 );
+
+    pbr = Math.round (steps * pbr) / steps;
+
+
+    if (counter % 16 == 0) {
+      if( video.playbackRate != pbr + offset) {
+        video.playbackRate = pbr + offset;
+      }
+      console.log('pbr: ' + video.playbackRate);
+      // video.currentTime = video.currentTime;
+      // console.log('change: ' + pbr_change);
+      // console.log('pbr: ' + (pbr + offset));
+    }
+    
+    // if (!video.paused && run_average > 5) {
+    //   var jump = pbr * 4;
+    //   console.log('j: ' + jump);
+    //   if (jump > 1.35 * multiplier)
+    //     setTimeout(function() { video.currentTime = video.currentTime + jump; }, jump * 20);
+    //   // video.playbackRate = pbr + offset;
+    // }
+    
+  },  scan_time );
+}
+
+// !reVos hooks
 
 var prefs = {
   sites: {
@@ -42,7 +159,6 @@ function adjustSource(target, settings) {
     target.attached = false;
   }
 
-  ////// TODO: add audio analyzer //////
   if (!target.attached && settings.enabled) {
     /*
     var targetURL;
@@ -69,27 +185,9 @@ function adjustSource(target, settings) {
 
         target.context = new AudioContext();
         target.source = target.context.createMediaElementSource(target);
-        // https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
         target.compressor = target.context.createDynamicsCompressor();
         target.boost = target.context.createGain();
-        // var analyser = target.context.createAnalyser();
-        // analyser.minDecibels = -50;
-        // analyser.maxDecibels = -3;
-        // analyser.smoothingTimeConstant = 0.85;
-        // target.source.connect(analyser);
-        // target.reVos_analyser = analyser;
-
-
-
-
-        target.analyser = target.context.createAnalyser();
-        target.analyser.minDecibels = -90;
-        target.analyser.maxDecibels = -10;
-        target.analyser.fftSize = 256;
-        target.analyser.smoothingTimeConstant = 0.02;
-
-        // target.source.connect(analyser);
-
+        create_reVos_analyzer(target, settings); // add reVos
         target.initialized = true;
     }
 
@@ -211,118 +309,13 @@ chrome.storage.onChanged.addListener(changes => {
   }
 });
 
-// var iii = 0;
-
-// console.log('start\n\n\n\n');
-// var analyser = new (window.AudioContext)().createAnalyser();
-// analyser.fftSize = 256;
-// var bufferLength = analyser.frequencyBinCount;
-// var dataArray = new Uint8Array(bufferLength);
-// analyser.getByteFrequencyData(dataArray);
-// console.log('a: ' + dataArray);
-// console.log('end\n\n\n\n');
-
-var vol_arr = [];
-var counter = 0;
-const max_counter = 20;
-const scan_time = 50;//133.33;//66.67;//3.75;
-// var next_action;
-
-for (let i = 0; i < max_counter; ++i ) {
-  vol_arr[i] = 10;
-}
-
-var should_analyze = window;
-
-function runAnalysis(target) {
-  should_analyze = target;
-  setInterval(function() {
-    var bufferLength = target.analyser.frequencyBinCount;
-    var dataArray = new Uint8Array(bufferLength);
-    target.analyser.getByteFrequencyData(dataArray);
-  
-    // const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-    // const min_num = dataArray.reduce((a, b) => Math.min(a, b));
-    // const max_num = dataArray.reduce((a, b) => Math.max(a, b));
-  
-    // const scale = .7;
-    // const mmin = 1.;
-    // const mmax = 3.5;
-
-    // var avg = Math.max( 0, 1. - (average / 128.) );
-    // var avg = 1. - (Math.max( 0, average ) / 255. );
-    // var avg2 = 2. * (Math.max( 0, avg - .5 ) );
-    
-    // var pbr = Math.round( 100. * Math.max(avg, Math.min( 1. + (scale * ( avg )), mmax)) ) / 100;
-    
-    // console.log('data: ' + dataArray);
-    // console.log('avg: ' + average);
-    
-    const run_average = Math.pow ( dataArray.reduce((a, b) => a + b) / bufferLength, .85 );
-    const vol_average = vol_arr.reduce((a, b) => a + b) / vol_arr.length;
-
-    if (counter >= max_counter) {
-      counter = 0;
-    }
-    vol_arr[counter] = run_average;
-    ++counter;
-    
-    var video = document.getElementsByTagName('video')[0];
-    var curr_pb = video.playbackRate;
-    var pbr = base * Math.max( 
-                1 + (  multiplier * (  (-.1 * run_average)  +  ( .2 * (run_average - vol_average))  )  )
-              , 1 );
-    // pbr = Math.round( pbr * steps ) / steps;
-
-  // Math.min( 
-  //   multiplier * ( 2 - ( ( .08 * (run_average) + ( .04 * (vol_average - run_average)) ) ) ) / 1.4
-  // , 2 )
-
-    // if ( pbr > .07 + (.03 * run_average) )
-    // video.currentTime = video.currentTime + ((pbr + offset) / 5);
-    // if ( video.playbackRate != pbr + offset )
-      // video.playbackRate = pbr + offset;
-    
-    if (!video.paused && run_average > 5) {
-      var jump = pbr * 4;
-      console.log('j: ' + jump);
-      if (jump > 1.35 * multiplier)
-        setTimeout(function() { video.currentTime = video.currentTime + jump; }, jump * 20);
-      // video.playbackRate = pbr + offset;
-    }
-    
-
-    // console.log('vol: ' + vol_arr);
-    // console.log('pbr: ' + video.playbackRate);
-
-
-    // if (run_average < vol_average) {
-      
-      // } else {
-        
-    // }
-
-    // console.log('min: ' + min_num);
-    // console.log('max: ' + max_num);
-    // console.log('tot: ' + total);
-    // console.log('pbr: ' + pbr);
-  
-    // document.getElementsByTagName('video')[0].playbackRate = pbr;
-    
-  },  scan_time );
-}
-// 75
-// 60
-// 120
-// 66.66
-// 99.99
-// 133.33
-// 266.66
-// 7.5
-
 window.addEventListener('playing', ({ target }) => {
   update(target, settings);
-  if (should_analyze != target) runAnalysis(target);
+  if (should_analyze != target) {
+    console.log('PLAYING');
+    should_analyze = target;
+    runAnalysis(target);
+  }
 }, true);
 
 window.addEventListener('canplay', ({ target }) => {
