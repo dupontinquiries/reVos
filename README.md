@@ -1,5 +1,7 @@
 # Impakt: reVos
 
+A smart video player built to save you time.
+
 ## Behind the Name
 
 The name is a play on the words revision ("rev"), re-vision ("reV"), & videos ("os").  The capital v is eye-catching, which alludes to the fact that reVos is designed to keep users focused on the content of the video and not the semantics.
@@ -24,6 +26,8 @@ reV Mode will engage a unique set of features.  Various modes and settings will 
 
 The SS protocal will speed up quieter & silent parts of a video based on a user-malleable speed curve.  For example, a user can set up a logarithmic curve to greatly speed up a video when a professor is not speaking.  A subtle increase of the playback speed speed from 1.0 to 1.07 over a lifetime can save a lot of time.
 
+The SS Protocol will use lazy loading of audio data to load only one minute of audio data at a time.  This will help reduce memory usage and will also help increase video load times.
+
 #### Lecture Protocol
 
 Lecture protocol is a voice-centric cleaving algorithm that skips silent parts in a video.  It is similar to this programs predecessor, kSS.
@@ -31,12 +35,12 @@ Lecture protocol is a voice-centric cleaving algorithm that skips silent parts i
 Lecture protocol may also have a tentative feature: uh-ware.  Uh-ware is a rich feature that can remove filler words and sounds (ie. a pen tapping or a short breath).  Uh-ware may be implemented in one or all of two proposed methods:
 
 1. The user can select a sound from the timeline and add it to a set of sounds to skip.
-
 2. An AI will understand language in a way that enables it to identify these sounds autonomously.
+3. A pre-established database of presets will be used to determine whether or not audio is essential.
 
 #### Heartbeat
 
-The heartbeat protocol will attempt to speed up slower parts of a video to be as fast as the quicker parts of a video.  This process will be difficult to implement.
+The heartbeat protocol will attempt to speed up slower parts of a video to be as fast as the quicker parts of a video.  This process will be difficult to implement, as video tempo does not always correlate with shallow features such as audio levels.
 
 ### DAPP Commenting
 
@@ -44,9 +48,11 @@ Some sort of comment system that populates via a secure & private decentralized 
 
 ### Synchronize Mode (tentative)
 
-This features addition is tentative.  The idea is that the player will be able to either synchronize a playhead or a video stream via decentralized communication protocols such as bluetooth and nfc.
+This features addition is tentative.  The idea is that the player will be able to either synchronize a playhead or a video stream via decentralized communication protocols such as bluetooth and nfc.  This mode should also work over the internet without any custom code running on a centralized server.
 
 ## Language Choice
+
+This software is expected to be written in multiple languages to create a hierarchy that combines lower level performance with higher-level interface & design elements.
 
 ### C++
 
@@ -56,10 +62,22 @@ C++ would offer fast operations, which are critical for a real-time system.
 
 Javascript would allow this application to run in a web browser on any device using the html5 web player.  Another API such as react could be used, but it is important that the app remain independent of any backend server.
 
+After learning about modern javascript, I think it would be a good choice.
+
 ### Python
 
 Python is a popular language that makes writing apps easy.
 
+Python may be more more enticing than C++ if the code is written very efficiently.
+
 ### Go
 
 
+
+### Rust
+
+### Haskell
+
+## Web Extension
+
+A web extension that speeds up html video players based on auido levels could be a simple proof of concept.
