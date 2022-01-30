@@ -44,9 +44,9 @@ function create_reVos_analyzer(target, settings) {
 
 function runAnalysis(target) {
   // should_analyze = target;
-  
+
   var video = document.getElementsByTagName('video')[0];
-  
+
   setInterval(function() {
 
     let multiplier = settings.reVos_multiplier;
@@ -54,13 +54,13 @@ function runAnalysis(target) {
 
     // console.log(multiplier);
     // console.log(offset);
-    
+
     if (video.paused) {
       // console.log('paused');
       video.playbackRate = 1 + offset;
       return;
     }
-    
+
     if (!settings.enabled) {
       video.playbackRate = 1;
       // console.log('disabled');
@@ -70,7 +70,7 @@ function runAnalysis(target) {
     var bufferLength = target.analyser.frequencyBinCount;
     var dataArray = new Uint8Array(bufferLength);
     target.analyser.getByteFrequencyData(dataArray);
-    
+
     // const run_average = Math.pow ( dataArray.reduce((a, b) => a + b) / bufferLength, .85 );
     const run_average = dataArray.reduce((a, b) => a + b) / dataArray.length; //, 1.1 ) / 1.05;
     const vol_average = vol_arr.reduce((a, b) => a + b) / vol_arr.length;
@@ -100,16 +100,18 @@ function runAnalysis(target) {
     }
     let change = (change2 - change1) / max_counter * 1;
 
-    // console.log('refit: ' + ordered_vol_arr); 
-    // console.log('change: ' + change); 
-    
+    // console.log('refit: ' + ordered_vol_arr);
+    // console.log('change: ' + change);
+
     var pbr_change = base * Math.max( 0 - (.05 * change) , 0 );
 
-    var pbr = base * Math.max( 
+    var pbr = base * Math.max(
                 multiplier * ( 1.3 + (  (-.08 * pbr_change) + (-.1 * run_average)  ) )
               , 1 );
 
     pbr = Math.round (steps * pbr) / steps;
+
+    // console.log('pbr: ' + video.playbackRate);
 
 
     if (counter % 16 == 0) {
@@ -124,7 +126,7 @@ function runAnalysis(target) {
       // console.log('change: ' + pbr_change);
       // console.log('pbr: ' + (pbr + offset));
     }
-    
+
     // if (!video.paused && run_average > 5) {
     //   var jump = pbr * 4;
     //   console.log('j: ' + jump);
@@ -132,7 +134,7 @@ function runAnalysis(target) {
     //     setTimeout(function() { video.currentTime = video.currentTime + jump; }, jump * 20);
     //   // video.playbackRate = pbr + offset;
     // }
-    
+
   },  scan_time );
 }
 
@@ -180,8 +182,8 @@ function adjustSource(target, settings) {
 
     // not as simple as checking the url host
     // videos can have a source like: blob:twitch.tv/ajhakjdshakhdsj
-    if (prefs.disableForCrossSiteElements && 
-        targetURL != null && 
+    if (prefs.disableForCrossSiteElements &&
+        targetURL != null &&
         window.location.host != targetURL.host) {
       console.log(logPrefix + ' cross-origin source, not enabling', target);
       return;
@@ -378,5 +380,5 @@ browser.runtime.onMessage.addListener(() => {
 });
 
 // setInterval(function() {
-  
+
 // }, 100);
