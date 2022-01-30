@@ -46,7 +46,7 @@ elements.disableForCrossSiteElements.onchange = () => {
 }
 */
 
-var defaultCompressorSettings = { enabled: true, threshold: -61.2, knee: 29, ratio: 1.4, attack: .001, release: .6, boost: .3, reVos_multiplier: 1, reVos_offset: 1 };
+var defaultCompressorSettings = { enabled: true, threshold: -45, knee: 29, ratio: 1.2, attack: .001, release: .7, boost: .15, reVos_multiplier: .8, reVos_offset: 1 };
 
 var currentSite = 'default';
 var urlSegments = [];

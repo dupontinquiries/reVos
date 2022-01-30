@@ -8,9 +8,7 @@
 
 // reVos hooks
 
-// var multiplier = 1.05;
 var base = 1;
-// var offset = 0;
 var steps = 4;
 
 var vol_arr = [];
@@ -18,15 +16,6 @@ var ordered_vol_arr = [];
 var counter = 0;
 const max_counter = 24;
 const scan_time = 32;
-var is_active = true;
-
-// function set_offset(f) {
-//   offset = f;
-// }
-
-// function set_multiplier(m) {
-//   multiplier = m;
-// }
 
 for (let i = 0; i < max_counter; ++i ) {
   vol_arr[i] = 10;
@@ -115,6 +104,10 @@ function runAnalysis(target) {
     if (counter % 16 == 0) {
       if( video.playbackRate != pbr + offset) {
         video.playbackRate = pbr + offset;
+        // chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
+        // chrome.browserAction.setBadgeText({text: "" + video.playbackRate});
+        // chrome.action.setBadgeText({text: "" + video.playbackRate});
+        // chrome.browserAction.setBadgeText({ tabId: myTabId, text: video.playbackRate.toString() });
       }
       // console.log('pbr: ' + video.playbackRate);
       // console.log(multiplier);
