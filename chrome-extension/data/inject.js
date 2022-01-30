@@ -44,7 +44,7 @@ function runAnalysis(target) {
     // console.log(multiplier);
     // console.log(offset);
     
-    if (video.paused) {
+    if (video.paused || multiplier == 0) {
       // console.log('paused');
       video.playbackRate = 1 + offset;
       return;
