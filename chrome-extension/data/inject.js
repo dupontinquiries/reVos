@@ -33,6 +33,9 @@ const max_counter = 48; //48, 18, 24
 // scan time updates the audio memory with a new value
 const scan_time = 8; //48, 18, 32
 
+// calculates the time saved by using reVos
+var time_saved = 0;
+
 for (let i = 0; i < max_counter; ++i ) {
   vol_arr[i] = 10;
 }
@@ -64,6 +67,8 @@ function runAnalysis(target) {
     document.getElementsByClassName('ngPlayerWrapper')[0].style = 'height: 100vh; width: 100vw;';
     document.getElementsByClassName('vjs-unified')[0].style = 'height: 90vh !important;';
   }
+
+  time_saved = 0;
   
   setInterval(function() {
 
@@ -145,6 +150,9 @@ function runAnalysis(target) {
 
 
     if (counter % update_rate == 0) {
+      if (video.playbackRate > 1 && settings.time_saved_logging) { //TODO: add to settings
+        console.log('time saved:' + Math.round(time_saved / 1000) + "s");
+      }
       if( video.playbackRate != pbr + offset) {
         video.playbackRate = Math.round( (pbr + offset) * steps ) / steps;
         // chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
@@ -160,6 +168,11 @@ function runAnalysis(target) {
       // console.log('change: ' + pbr_change);
       // console.log('pbr: ' + (pbr + offset));
     }
+
+    if (video.playbackRate > 1) {
+      time_saved += scan_time / (video.playbackRate - 1);
+    }
+
     
     // if (!video.paused && run_average > 5) {
     //   var jump = pbr * 4;
