@@ -8,14 +8,30 @@
 
 // reVos hooks
 
+// base is the base (non-dynamic) playback rate (ie. I can watch a video at 1.2 speed + the dynamic speed modulation from runAnalysis)
 var base = 1;
-var steps = 4;
+// steps controls the precision of total video speed modulation
+var steps = 10; // 5
+// dynamic_steps controls the precision of reVos' speed modulation (only one part of the algorithm)
+// 4: increments of .25 speed
+// 5: increments of .2 speed
+var dynamic_steps = 20;
 
+// vol_arr is a vector that acts as a ring buffer for storing audio data
 var vol_arr = [];
 var ordered_vol_arr = [];
+// counter is a helper variable that keeps track of the most recently added audio level average in the audio buffer (located in runAnalysis)
 var counter = 0;
-const max_counter = 24;
-const scan_time = 32;
+// update rate changes how often the playback speed can be changed
+// update rate should higher than 12 in order to work with slower systems
+// for m1 mac users: turn off "optimize video playback on battery" in settings to fix the unsync problem
+const update_rate = 24;
+// max counter dictates the number of samples stored at any moment
+// scan time * max counter effectively dictates the number of milliseconds of sampled audio that will be used to make a speed adjustment 
+const max_counter = 48; //48, 18, 24
+// scan time dictates the period of runAnalysis::setInterval
+// scan time updates the audio memory with a new value
+const scan_time = 8; //48, 18, 32
 
 for (let i = 0; i < max_counter; ++i ) {
   vol_arr[i] = 10;
@@ -35,6 +51,19 @@ function runAnalysis(target) {
   // should_analyze = target;
   
   var video = document.getElementsByTagName('video')[0];
+  if (window.location.hostname.includes('webex')) {
+    // make the controls less bulky (helps for screenshots)
+    document.getElementsByClassName('vjs-fill')[0].style = 'overflow: scroll; height: 100%; width: 100%;';
+    document.getElementsByClassName('vjs-control-bar')[0].style = 'max-width: calc(2rem + 4vh + 10vw) !important;';
+    document.getElementsByClassName('vjs-slider-horizontal')[0].style = 'height: 20px !important;';
+    // theater mode the background
+    document.getElementById('ngPlayerContainer').style = 'background-color: black !important; color: white !important;';
+    document.body.style = 'background-color: black !important; color: white !important;';
+    document.getElementsByClassName('unifiedPlayerLayout')[0].style = 'background-color: black !important; color: white !important;';
+    // fullscreen the video
+    document.getElementsByClassName('ngPlayerWrapper')[0].style = 'height: 100vh; width: 100vw;';
+    document.getElementsByClassName('vjs-unified')[0].style = 'height: 90vh !important;';
+  }
   
   setInterval(function() {
 
@@ -43,6 +72,20 @@ function runAnalysis(target) {
 
     // console.log(multiplier);
     // console.log(offset);
+
+    if (video.paused) {
+      if (window.location.hostname.includes('webex')) {
+        // webex show bar
+        // document.getElementsByClassName('vjs-control-bar')[0].style = 'transform: scaleY(.9) translateY(10px) !important; max-width: calc(2rem + 4vh + 10vw) !important;';
+        // document.getElementsByClassName('vjs-control-bar')[0].style = 'transform: scaleY(.9) translateY(10px) !important; max-width: 100% !important;';
+        // document.getElementsByClassName('vjs-slider-horizontal')[0].style = 'height: auto !important;';
+      }
+    } else {
+      if (window.location.hostname.includes('webex')) {
+        // webex hide bar
+        // document.getElementsByClassName('vjs-control-bar')[0].style = 'transform: scaleY(.7) translateY(30px) !important; max-width: calc(2rem + 4vh + 10vw) !important;';
+      }
+    }
     
     if (video.paused || multiplier == 0) {
       // console.log('paused');
@@ -98,12 +141,12 @@ function runAnalysis(target) {
                 multiplier * ( 1.3 + (  (-.08 * pbr_change) + (-.1 * run_average)  ) )
               , 1 );
 
-    pbr = Math.round (steps * pbr) / steps;
+    pbr = Math.round (dynamic_steps * pbr) / dynamic_steps;
 
 
-    if (counter % 16 == 0) {
+    if (counter % update_rate == 0) {
       if( video.playbackRate != pbr + offset) {
-        video.playbackRate = pbr + offset;
+        video.playbackRate = Math.round( (pbr + offset) * steps ) / steps;
         // chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
         // chrome.browserAction.setBadgeText({text: "" + video.playbackRate});
         // chrome.action.setBadgeText({text: "" + video.playbackRate});
@@ -334,6 +377,15 @@ window.addEventListener('playing', ({ target }) => {
     console.log('PLAYING');
     should_analyze = target;
     runAnalysis(target);
+    // let video = document.getElementsByTagName('video')[0];
+    // video.style.width = '100vw';
+    // video.style.zIndex = 1000;
+    // var elements = document.getElementsByTagName('div');
+    // for (let i = 0; i < elements.length; ++i) {
+    //   let el = elements[i];
+    //   elements.style.opacity = '0 important';
+    // }
+    // video.style.opacity = 1;
   }
 }, true);
 
