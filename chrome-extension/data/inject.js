@@ -142,15 +142,28 @@ function runAnalysis(target) {
     
     var pbr_change = base * Math.max( 0 - (.05 * change) , 0 );
 
+    // var pbr = base * Math.max( 
+    //             multiplier * ( 1.3 + (  (-.08 * pbr_change) + (-.1 * run_average)  ) )
+    //           , 1 );
+
+    // var pbr = base * Math.max( 
+    //             multiplier * ( 1.6 + (  (-.16 * pbr_change) + (-.2 * run_average)  ) )
+    //           , 1 );
+
+    // var pbr = base * Math.max( 
+    //   multiplier * ( 1.2 + (  (-.053 * pbr_change) + (-.067 * run_average)  ) )
+    // , 1 );
+
     var pbr = base * Math.max( 
-                multiplier * ( 1.3 + (  (-.08 * pbr_change) + (-.1 * run_average)  ) )
-              , 1 );
+      multiplier * ( 1.3 + (  (-.063 * pbr_change) + (-1.017 * run_average)  ) )
+    , 1 );
 
     pbr = Math.round (dynamic_steps * pbr) / dynamic_steps;
 
 
     if (counter % update_rate == 0) {
-      if (video.playbackRate > 1 && settings.time_saved_logging) { //TODO: add to settings
+      if (video.playbackRate > 1) { //TODO: add to settings
+        // if (video.playbackRate > 1 && settings.time_saved_logging) { //TODO: add to settings
         console.log('time saved:' + Math.round(time_saved / 1000) + "s");
       }
       if( video.playbackRate != pbr + offset) {
@@ -170,7 +183,7 @@ function runAnalysis(target) {
     }
 
     if (video.playbackRate > 1) {
-      time_saved += scan_time / (video.playbackRate - 1);
+      time_saved += scan_time * (video.playbackRate - 1);
     }
 
     
