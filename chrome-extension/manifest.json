@@ -24,11 +24,7 @@
     }
   ],
   "icons": {
-    "16": "data/icons/logo-mid-active-16.png",
-    "32": "data/icons/logo-mid-active-32.png",
-    "48": "data/icons/logo-mid-active-48.png",
-    "64": "data/icons/logo-mid-active-64.png",
-    "128": "data/icons/logo-mid-active-128.png"
+    "128": "data/icons/reVos_logo_bright.png"
   },
   "browser_action": {
     "browser_style": true,
@@ -39,7 +35,7 @@
     "theme_icons": [
       {
         "dark": "data/icons/reVos_logo.svg",
-        "light": "data/icons/reVos_logo.svg",
+        "light": "data/icons/reVos_logo_bright.svg",
         "size": 128
       }
     ]
