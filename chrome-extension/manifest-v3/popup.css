@@ -1,9 +1,11 @@
 html {
   /* width: 400px; */
+  width: 150%;
 }
 
 body {
   /* margin-left: 100px; */
+  /* overflow-x: scroll; */
   font-family: "Helvetica Neue", Helvetica,sans-serif;
   font-size: 8px;
   margin: 20px;
@@ -20,8 +22,10 @@ header {
 }
 
 #body {
+  /* overflow-x: scroll;
+  padding: 0 50px; */
   /* overflow-x: scroll; */
-  /* padding: 0 50px; */
+  /* margin: 0 100px; */
   display: flex;
   flex-direction: column;
   align-items: center;
