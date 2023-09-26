@@ -1,6 +1,5 @@
 html {
   max-width: 720px;
-  min-width: 650px !important;
 /*   overflow: auto; */
   background-color: white;
 /*   min-width: 650px; */
@@ -50,6 +49,7 @@ header {
 }
 
 #body table {
+  min-width: 200px;
   table-layout: fixed;
 }
 

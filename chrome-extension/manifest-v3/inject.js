@@ -8,6 +8,7 @@
 
 // reVos hooks
 
+// TODO make all these parameters tunable in user preferences
 // base is the base (non-dynamic) playback rate (ie. I can watch a video at 1.2 speed + the dynamic speed modulation from runAnalysis)
 var base = 1;
 // steps controls the precision of total video speed modulation
@@ -53,8 +54,14 @@ function create_reVos_analyzer(target, settings) {
 function runAnalysis(target) {
   // should_analyze = target;
   
+  // get the first video element
+  // TODO add a pick function similar to uBlock for choosing video
   var video = document.getElementsByTagName('video')[0];
+
+  // clean up WebEx's distracting UI for a fullscreen experience
+  // TODO make this a the default user css for webex page (support css mods on page-by-page basis)
   if (window.location.hostname.includes('webex')) {
+    // TODO add button toggle for WebEx
     // make the controls less bulky (helps for screenshots)
     document.getElementsByClassName('vjs-fill')[0].style = 'overflow: scroll; height: 100%; width: 100%;';
     document.getElementsByClassName('vjs-control-bar')[0].style = 'max-width: calc(2rem + 4vh + 10vw) !important;';
@@ -164,7 +171,7 @@ function runAnalysis(target) {
     if (counter % update_rate == 0) {
       if (video.playbackRate > 1) { //TODO: add to settings
         // if (video.playbackRate > 1 && settings.time_saved_logging) { //TODO: add to settings
-        console.log('time saved:' + Math.round(time_saved / 1000) + "s");
+        // console.log('time saved:' + Math.round(time_saved / 1000) + "s");
       }
       if( video.playbackRate != pbr + offset) {
         video.playbackRate = Math.round( (pbr + offset) * steps ) / steps;
@@ -200,16 +207,21 @@ function runAnalysis(target) {
 
 // !reVos hooks
 
+// this is the default state of the user presets button list
 var prefs = {
   sites: {
     'default': { enabled: false, threshold: -24, knee: 30, ratio: 12, attack: .003, release: .25, boost: 0 }
   }
   //disableForCrossSiteElements: false
 };
+// these are the loaded user presets
+// TODO better naming of vars (have global and local that are named same rn and is confusing)
 var settings = prefs.sites.default;
+// TODO experiment with this changing over one second instead of .1 seconds
 var parameterChangeDuration = .1;
 
-var logPrefix = 'Audio Compressor: ';
+// for logging
+var logPrefix = 'reVos: ';
 
 //console.log(logPrefix + 'injecting compressor');
 
@@ -250,6 +262,7 @@ function adjustSource(target, settings) {
     }
     */
 
+    // create the analyzer watcher
     if (!target.initialized) {
         console.log(logPrefix + 'creating compressor', settings);
         //console.log(logPrefix + 'creating compressor', settings, target);
@@ -293,6 +306,7 @@ function adjustSource(target, settings) {
     applySettings();
   }
 
+  // handles the dispatching of each aspect of the controls
   function applySettings() {
     for (var s in settings) {
 
@@ -353,6 +367,8 @@ function adjustSource(target, settings) {
   browser.runtime.sendMessage({ active: target.attached == true });
 }
 
+// a matching function that finds the best match for the current url in the database of user site preferences
+// TODO rewrite to be more elegant (maybe a hash? probably not... just has to handle a wide and/or deep tree well)
 function getBestSiteMatch() {
   var bestSiteMatch = 'default';
   var maxLength = 0;
@@ -400,7 +416,7 @@ chrome.storage.onChanged.addListener(changes => {
 window.addEventListener('playing', ({ target }) => {
   update(target, settings);
   if (should_analyze != target) {
-    console.log('PLAYING');
+    // console.log('PLAYING');
     should_analyze = target;
     runAnalysis(target);
     // let video = document.getElementsByTagName('video')[0];

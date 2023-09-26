@@ -249,7 +249,7 @@ function saveSettings() {
   //prefs.disableForCrossSiteElements = elements.disableForCrossSiteElements.checked;
   prefs.sites[currentSite] = getCurrentCompressorSettings();
   chrome.storage.local.set(prefs);
-  console.log('saved', prefs);
+  // console.log('saved', prefs);
 }
 
 var isChrome = false;
